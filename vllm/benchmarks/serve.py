@@ -46,7 +46,7 @@ from vllm.benchmarks.lib.endpoint_request_func import (
 )
 from vllm.benchmarks.lib.ready_checker import wait_for_endpoint
 from vllm.benchmarks.lib.utils import convert_to_pytorch_benchmark_format, write_to_json
-from vllm.tokenizers import TokenizerLike, get_tokenizer
+from vllm.tokenizers import TokenizerLike, TokenizerRegistry, get_tokenizer
 from vllm.utils.gc_utils import freeze_gc_heap
 from vllm.utils.network_utils import join_host_port
 
@@ -1031,6 +1031,14 @@ def add_cli_args(parser: argparse.ArgumentParser):
         type=str,
         help="Name or path of the tokenizer, if not using the default tokenizer.",  # noqa: E501
     )
+    tokenizer_choices = [
+        "auto",
+        "hf",
+        "slow",
+        "mistral",
+        "deepseek_v32",
+        **TokenizerRegistry.REGISTRY.keys(),
+    ]
     parser.add_argument(
         "--tokenizer-mode",
         type=str,
