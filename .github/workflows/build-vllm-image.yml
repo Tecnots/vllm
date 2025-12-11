@@ -55,6 +55,9 @@ jobs:
           # Normalize slashes in refs for tags (e.g. feature/xyz -> feature-xyz)
           TAG_SAFE="${TAG//\//-}"
           echo "tag=$TAG_SAFE" >> "$GITHUB_OUTPUT"
+          # Lowercase owner/repo for GHCR (ghcr.io/<owner>/<image>:<tag> must be lowercase)
+          REPO_LOWER="${GITHUB_REPOSITORY,,}"
+          echo "repo_lower=$REPO_LOWER" >> "$GITHUB_OUTPUT"
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
@@ -63,7 +66,7 @@ jobs:
           file: docker/Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}/${{ steps.meta.outputs.tag }}
+            ghcr.io/${{ steps.meta.outputs.repo_lower }}:${{ steps.meta.outputs.tag }}
           build-args: |
             CUDA_VERSION=12.9.1
             PYTHON_VERSION=3.12
