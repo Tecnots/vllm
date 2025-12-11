@@ -1,0 +1,37 @@
+version: "3.9"
+
+services:
+  vllm:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: vllm-llama33
+    environment:
+      # Hugging Face model repo id for your quantized 8B model
+      # e.g. "your-org/llama-3.3-8b-instruct-awq"
+      MODEL_NAME: "hugging-quants/Meta-Llama-3.1-8B-Instruct-AWQ-INT4"
+      # Quantization type understood by vLLM, e.g. "awq", "gptq", etc.
+      QUANTIZATION: "awq"
+      # Port exposed by vLLM OpenAI-compatible server inside the container
+      VLLM_PORT: "8000"
+      # HF token is injected from .env (do NOT hardcode it here)
+      HF_TOKEN: "${HF_TOKEN}"
+      # Optional: persistent cache location for models
+      HF_HOME: "/data/huggingface"
+      # Recommended for NVIDIA + Docker
+      NVIDIA_VISIBLE_DEVICES: "all"
+      NVIDIA_DRIVER_CAPABILITIES: "compute,utility"
+    ports:
+      - "8000:8000"
+    volumes:
+      # Persist HF cache so models are not re-downloaded every run
+      - ./hf-cache:/data/huggingface
+    # Start the vLLM OpenAI-compatible server with env-driven config
+    command: >
+      bash -lc "
+      python -m vllm.entrypoints.openai.api_server
+        --model \"hugging-quants/Meta-Llama-3.1-8B-Instruct-AWQ-INT4\"
+        --port ${VLLM_PORT}
+        --host 0.0.0.0
+        ${QUANTIZATION:+--quantization \"${QUANTIZATION}\"}
+      "
