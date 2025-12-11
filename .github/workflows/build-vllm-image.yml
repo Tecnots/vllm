@@ -63,7 +63,7 @@ jobs:
           file: docker/Dockerfile
           push: true
           tags: |
-            ghcr.io/${{ github.repository }}/$IMAGE_NAME:${{ steps.meta.outputs.tag }}
+            ghcr.io/${{ github.repository }}/${{ steps.meta.outputs.tag }}
           build-args: |
             CUDA_VERSION=12.9.1
             PYTHON_VERSION=3.12
