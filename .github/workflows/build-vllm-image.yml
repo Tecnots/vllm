@@ -68,5 +68,5 @@ jobs:
           tags: |
             ghcr.io/${{ steps.meta.outputs.repo_lower }}:${{ steps.meta.outputs.tag }}
           build-args: |
-            CUDA_VERSION=12.9.1
+            CUDA_VERSION=12.8.0
             PYTHON_VERSION=3.12
