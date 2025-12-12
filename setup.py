@@ -630,6 +630,10 @@ def get_rocm_version():
 
 
 def get_nvcc_cuda_version() -> Version:
+    if os.environ.get("VLLM_SKIP_CUDA_BUILD", "0") == "1":
+        print("Skipping CUDA kernel build.")
+        return
+
     """Get the CUDA version from nvcc.
 
     Adapted from https://github.com/NVIDIA/apex/blob/8b7a1ff183741dd8f9b87e7bafd04cfde99cea28/setup.py
