@@ -629,28 +629,15 @@ def get_rocm_version():
         return None
 
 
-# def get_nvcc_cuda_version() -> Version:
-#     """Get the CUDA version from nvcc.
-
-#     Adapted from https://github.com/NVIDIA/apex/blob/8b7a1ff183741dd8f9b87e7bafd04cfde99cea28/setup.py
-#     """
-#     assert CUDA_HOME is not None, "CUDA_HOME is not set"
-#     nvcc_output = subprocess.check_output(
-#         [CUDA_HOME + "/bin/nvcc", "-V"], universal_newlines=True
-#     )
-#     output = nvcc_output.split()
-#     release_idx = output.index("release") + 1
-#     nvcc_cuda_version = parse(output[release_idx].split(",")[0])
-#     return nvcc_cuda_version
-
 def get_nvcc_cuda_version() -> Version:
-    # Skip CUDA build if environment variable is set.
     if os.environ.get("VLLM_SKIP_CUDA_BUILD", "0") == "1":
-        print(">>> [vLLM] Skipping CUDA version check (using prebuilt kernels)")
-        # Return a dummy version so metadata can still be created
-        return parse("0.0")
+        print("Skipping CUDA kernel build.")
+        return
 
-    # Otherwise follow the normal CUDA detection path
+    """Get the CUDA version from nvcc.
+
+    Adapted from https://github.com/NVIDIA/apex/blob/8b7a1ff183741dd8f9b87e7bafd04cfde99cea28/setup.py
+    """
     assert CUDA_HOME is not None, "CUDA_HOME is not set"
     nvcc_output = subprocess.check_output(
         [CUDA_HOME + "/bin/nvcc", "-V"], universal_newlines=True
@@ -661,10 +648,9 @@ def get_nvcc_cuda_version() -> Version:
     return nvcc_cuda_version
 
 
-
 def get_vllm_version() -> str:
     # Allow overriding the version. This is useful to build platform-specific
-    # wheels (e.g. CPU, TPU) without modifying the source.
+    # wheels (e.g. CPU, TPU) without modifying the source
     if env_version := os.getenv("VLLM_VERSION_OVERRIDE"):
         print(f"Overriding VLLM version with {env_version} from VLLM_VERSION_OVERRIDE")
         os.environ["SETUPTOOLS_SCM_PRETEND_VERSION"] = env_version
